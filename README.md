@@ -73,6 +73,12 @@ WealthWise 是一个个人财务管理平台，旨在帮助用户集中管理分
 4. **翡翠绿**: 清新护眼。
 5. **梦幻紫**: 个性化展示。
 
+![img.png](img.png)
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
+![img_3.png](img_3.png)
+![img_4.png](img_4.png)
+
 ## 5. 数据流向
 1. 前端发起 API 请求。
 2. 后端接收请求，查询 MySQL 数据库获取基础持仓信息。
