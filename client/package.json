@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "antd": "^5.12.2",
+    "antd-mobile": "^5.42.3",
     "axios": "^1.6.2",
     "dayjs": "^1.11.10",
     "echarts": "^5.4.3",

@@ -4,6 +4,7 @@ import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
 import axios from 'axios';
 import { getCurrentUserId } from '../utils/auth';
+import useIsMobile from '../hooks/useIsMobile';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,7 @@ const Dashboard = () => {
   });
   const [platformData, setPlatformData] = useState([]);
   const [historyData, setHistoryData] = useState({ dates: [], values: [] });
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchData = async (silent = false) => {
@@ -88,8 +90,8 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <Row gutter={16}>
-        <Col span={8}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={8}>
           <Card bordered={false} className="bg-blue-50">
             <Statistic
               title="总资产 (CNY)"
@@ -100,7 +102,7 @@ const Dashboard = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={12} sm={8}>
           <Card bordered={false} className="bg-green-50">
             <Statistic
               title="今日盈亏"
@@ -108,29 +110,29 @@ const Dashboard = () => {
               precision={2}
               valueStyle={{ color: stats.daily_pnl > 0 ? '#cf1322' : '#3f8600', fontWeight: 'bold' }}
               prefix={stats.daily_pnl > 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-              suffix={<span className="text-xs text-gray-500 ml-2">当日波动</span>}
+              suffix={!isMobile && <span className="text-xs text-gray-500 ml-2">当日波动</span>}
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={12} sm={8}>
           <Card bordered={false} className="bg-purple-50">
             <Statistic
               title="持仓平台数"
               value={platformData.length}
               valueStyle={{ color: '#722ed1', fontWeight: 'bold' }}
-              suffix={<span className="text-xs text-gray-500 ml-2">已配置多维度理财</span>}
+              suffix={!isMobile && <span className="text-xs text-gray-500 ml-2">已配置多维度理财</span>}
             />
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={16}>
-        <Col span={16}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={16}>
           <Card title="资产走势" bordered={false}>
-            <ReactECharts option={chartOption} />
+            <ReactECharts option={chartOption} style={{ height: isMobile ? 300 : 400 }} />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card title="平台资产分布" bordered={false}>
             <List
               itemLayout="horizontal"

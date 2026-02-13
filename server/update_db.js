@@ -2,9 +2,9 @@
 const mysql = require('mysql2/promise');
 
 const dbConfig = {
-    host: '0.0.0.0',
+    host: '8.141.121.133',
     user: 'root',
-    password: '0.0.0.0',
+    password: 'chenkexin',
     port: 3306,
     database: 'wealthwise'
 };

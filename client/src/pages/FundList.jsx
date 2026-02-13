@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, message, Tag, Space, Tabs, Spin } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Select, message, Tag, Space, Tabs, Spin, List, Card } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import ReactECharts from 'echarts-for-react';
 import AssetSearch from '../components/AssetSearch';
 import { getCurrentUserId } from '../utils/auth';
+import useIsMobile from '../hooks/useIsMobile';
 
 const FundList = () => {
     const [funds, setFunds] = useState([]);
@@ -12,6 +13,7 @@ const FundList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [platforms, setPlatforms] = useState([]);
     const [form] = Form.useForm();
+    const isMobile = useIsMobile();
     
     // Chart related
     const [selectedFund, setSelectedFund] = useState(null);
@@ -241,9 +243,56 @@ const FundList = () => {
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">我的基金组合</h2>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>新增基金</Button>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
+                    {isMobile ? '新增' : '新增基金'}
+                </Button>
             </div>
-            <Table columns={columns} dataSource={funds} rowKey="id" loading={loading} />
+            
+            {isMobile ? (
+                <List
+                    grid={{ gutter: 16, column: 1 }}
+                    dataSource={funds}
+                    renderItem={item => (
+                        <List.Item>
+                            <Card 
+                                size="small"
+                                title={
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-bold text-cyan-600" onClick={() => {
+                                            setSelectedFund(item);
+                                            setChartPeriod('day'); 
+                                            setChartModalOpen(true);
+                                        }}>{item.fund_name} <span className="text-gray-400 text-xs font-normal">{item.fund_code}</span></span>
+                                        <Tag color="cyan">{item.platform_name}</Tag>
+                                    </div>
+                                }
+                                extra={
+                                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(item.id)} />
+                                }
+                            >
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-gray-500">持有金额</span>
+                                    <span className="font-bold">¥{parseFloat(item.holding_amount).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-gray-500">持有收益</span>
+                                    <span className={item.holding_return > 0 ? 'text-red-500' : 'text-green-500'}>
+                                        {item.holding_return > 0 ? '+' : ''}{parseFloat(item.holding_return).toLocaleString()} ({item.total_pnl_percent.toFixed(2)}%)
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">当日盈亏</span>
+                                    <span className={item.daily_pnl > 0 ? 'text-red-500 font-bold' : 'text-green-500 font-bold'}>
+                                        {item.daily_pnl > 0 ? '+' : ''}{item.daily_pnl.toFixed(2)} ({item.daily_percent}%)
+                                    </span>
+                                </div>
+                            </Card>
+                        </List.Item>
+                    )}
+                />
+            ) : (
+                <Table columns={columns} dataSource={funds} rowKey="id" loading={loading} />
+            )}
 
             <Modal title="新增基金" open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null}>
                 <Form form={form} onFinish={handleAdd} layout="vertical">

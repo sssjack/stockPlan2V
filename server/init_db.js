@@ -3,9 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 const connection = mysql.createConnection({
-  host: '0.0.0.0',
+  host: '8.141.121.133',
   user: 'root',
-  password: '0.0.0.0',
+  password: 'chenkexin',
   port: 3306,
   multipleStatements: true
 });

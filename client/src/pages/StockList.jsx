@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, message, Tag, Space, Tabs, Spin } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Select, message, Tag, Space, Tabs, Spin, List, Card } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import ReactECharts from 'echarts-for-react';
 import AssetSearch from '../components/AssetSearch';
 import { getCurrentUserId } from '../utils/auth';
+import useIsMobile from '../hooks/useIsMobile';
 
 const StockList = () => {
     const [stocks, setStocks] = useState([]);
@@ -12,6 +13,7 @@ const StockList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [platforms, setPlatforms] = useState([]);
     const [form] = Form.useForm();
+    const isMobile = useIsMobile();
     
     // Chart related
     const [selectedStock, setSelectedStock] = useState(null);
@@ -234,9 +236,62 @@ const StockList = () => {
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">股票持仓明细</h2>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>新增股票</Button>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
+                    {isMobile ? '新增' : '新增股票'}
+                </Button>
             </div>
-            <Table columns={columns} dataSource={stocks} rowKey="id" loading={loading} />
+            
+            {isMobile ? (
+                <List
+                    grid={{ gutter: 16, column: 1 }}
+                    dataSource={stocks}
+                    renderItem={item => (
+                        <List.Item>
+                            <Card 
+                                size="small"
+                                title={
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-bold text-blue-600" onClick={() => {
+                                            setSelectedStock(item);
+                                            setChartPeriod('min'); 
+                                            setChartModalOpen(true);
+                                        }}>{item.stock_name} <span className="text-gray-400 text-xs font-normal">{item.stock_code}</span></span>
+                                        <Tag color="blue">{item.platform_name}</Tag>
+                                    </div>
+                                }
+                                extra={
+                                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(item.id)} />
+                                }
+                            >
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-gray-500">现价/成本</span>
+                                    <span>
+                                        <span className="font-bold">¥{item.current_price}</span> / {item.cost_price}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-gray-500">持仓/仓位</span>
+                                    <span>{item.quantity} 股 ({(item.market_value / 1000).toFixed(1)}%)</span>
+                                </div>
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-gray-500">当日盈亏</span>
+                                    <span className={item.daily_pnl > 0 ? 'text-red-500' : 'text-green-500'}>
+                                        {item.daily_pnl > 0 ? '+' : ''}{item.daily_pnl.toFixed(2)} ({item.daily_percent}%)
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">累计盈亏</span>
+                                    <span className={item.total_pnl > 0 ? 'text-red-500 font-bold' : 'text-green-500 font-bold'}>
+                                        {item.total_pnl > 0 ? '+' : ''}{item.total_pnl.toFixed(2)}
+                                    </span>
+                                </div>
+                            </Card>
+                        </List.Item>
+                    )}
+                />
+            ) : (
+                <Table columns={columns} dataSource={stocks} rowKey="id" loading={loading} />
+            )}
 
             <Modal title="新增股票" open={isModalOpen} onCancel={() => setIsModalOpen(false)} footer={null}>
                 <Form form={form} onFinish={handleAdd} layout="vertical">
